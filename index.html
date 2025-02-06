@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundCloud Transcriber</title>
+</head>
+<body>
+    <h1>SoundCloud Transcriber</h1>
+    <form id="transcribe-form">
+        <label for="soundcloud-url">SoundCloud URL:</label>
+        <input type="text" id="soundcloud-url" name="soundcloud-url" required>
+        <button type="submit">Transcribe</button>
+    </form>
+
+    <div id="transcription-output">
+        <h2>Transcription:</h2>
+        <p id="transcription-text"></p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('transcribe-form');
+            const input = document.getElementById('soundcloud-url');
+            const output = document.getElementById('transcription-output');
+            const text = document.getElementById('transcription-text');
+            const button = form.querySelector('button[type="submit"]');
+
+            form.addEventListener('submit', async (event) => {
+              event.preventDefault();
+              const url = input.value;
+              const formData = new FormData();
+              formData.append('url', url);
+
+              const response = await fetch('/transcribe', {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                },
+              });
+              const responseJson = await response.json();
+              text.textContent = responseJson.transcription;
+              input.value = '';
+            });
+          });
+    </script>
+</body>
+</html>
