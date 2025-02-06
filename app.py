@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory, request
 from flask_cors import CORS
 import youtube_dl
 import tempfile
@@ -8,9 +8,9 @@ import speech_recognition as sr
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    return 'Hello world'
+    return send_from_directory("./", "index.html")
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
@@ -28,7 +28,7 @@ def transcribe():
 
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
       with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-          ydl.download([url], tmpfile.name)
+          ydl.download([url])
           audio_file_path = 'audio.mp3'
           os.rename(tmpfile.name, audio_file_path)
 
@@ -44,4 +44,8 @@ def transcribe():
     return jsonify({'status': 'success', 'transcription': transcription})
   except Exception as e:
     return jsonify({'status': 'error', 'message': str(e)})
+
+if __name__ == '__main__':
+  app.run(debug=True, port=3000)
+
 
